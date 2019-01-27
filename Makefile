@@ -98,7 +98,7 @@ make-bucket:
 # Upload data to S3 input dir.
 upload-input-aws: make-bucket
 	aws s3 sync ${local.input} s3://${aws.bucket.name}/${aws.input}
-	
+
 # Delete S3 output dir.
 delete-output-aws:
 	aws s3 rm s3://${aws.bucket.name}/ --recursive --exclude "*" --include "${aws.output}*"
