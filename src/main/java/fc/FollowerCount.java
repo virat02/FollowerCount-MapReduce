@@ -27,13 +27,18 @@ public class FollowerCount extends Configured implements Tool {
 
 		@Override
 		public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException {
+			
+			//split on comma, based on the input file format			
 			final StringTokenizer itr = new StringTokenizer(value.toString(),",");
+
 			String temp;
 			int i = 0;
 
 			while (itr.hasMoreTokens()) {
 				temp = itr.nextToken();
 				i++;
+
+				//for an input of (user_id_a,user_id_b) ; fetch the user_id_b 
 				if (i%2 == 0) {
 					userId.set(temp);
 					context.write(userId, one);
@@ -54,6 +59,7 @@ public class FollowerCount extends Configured implements Tool {
 			result.set(sum);
 			context.write(key, result);
 		}
+
 	}
 
 	@Override
@@ -61,14 +67,12 @@ public class FollowerCount extends Configured implements Tool {
 		final Configuration conf = getConf();
 		final Job job = Job.getInstance(conf, "Follower Count");
 		job.setJarByClass(FollowerCount.class);
+
 		final Configuration jobConf = job.getConfiguration();
+
+		// prints output in format: userId,no_of_followers
 		jobConf.set("mapreduce.output.textoutputformat.separator", ",");
-		// Delete output directory, only to ease local development; will not work on AWS. ===========
-//		final FileSystem fileSystem = FileSystem.get(conf);
-//		if (fileSystem.exists(new Path(args[1]))) {
-//			fileSystem.delete(new Path(args[1]), true);
-//		}
-		// ================
+
 		job.setMapperClass(TokenizerMapper.class);
 		job.setCombinerClass(IntSumReducer.class);
 		job.setReducerClass(IntSumReducer.class);
