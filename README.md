@@ -8,42 +8,18 @@ Code author
 -----------
 Virat Goradia
 
-Installation
-------------
-These components are installed:
-- JDK 1.8
-- Hadoop 2.8.5
-- Maven
-- AWS CLI (for EMR execution)
+## Program description
 
-Environment
------------
-1) Example ~/.bashrc:
-- export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-- export HADOOP_HOME=/home/virat/tools/hadoop/hadoop-2.8.5
-- export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
-- export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+This program reads the input line by line, and splits the line based on a comma, done by my string tokenizer. For example, the input has the format “user_id_a, user_id_b”, which means user_id_a follows user_id_b. Hence, this means user_id_b is followed by one user. Thereby, the mapper function extracts the user_id_b and it outputs (user_id_b,1) . Since the split function will split on the basis of a “comma”, we need the string which is to the right of the comma, which means we need every second string after we perform the split. Thereby, I have an integer “i” initialized to 0, and on every even count of the value of “i”, we add (key: user_id, value: 1) to our mapper output.
 
-2) Explicitly set JAVA_HOME in $HADOOP_HOME/etc/hadoop/hadoop-env.sh:
-- export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+The reduce function is pretty straightforward. It has a similar implementation to that of the word count demo program. It simply adds up the list of values for every key that exists and generates the final output.
 
-Execution
----------
-All of the build & execution commands are organized in the Makefile.
-1) Unzip project file.
-2) Open command prompt.
-3) Navigate to directory where project files unzipped.
-4) Edit the Makefile to customize the environment at the top.
-	- Sufficient for standalone: hadoop.root, jar.name, local.input
-	- Other defaults acceptable for running standalone.
-5) Standalone Hadoop:
-	- make switch-standalone		-- set standalone Hadoop environment (execute once)
-	- make local
-6) Pseudo-Distributed Hadoop: (https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html#Pseudo-Distributed_Operation)
-	- make switch-pseudo			-- set pseudo-clustered Hadoop environment (execute once)
-	- make pseudo					-- first execution
-	- make pseudoq				-- later executions since namenode and datanode already running 
-7) AWS EMR Hadoop: (you must configure the emr.* config parameters at top of Makefile)
-	- make upload-input-aws		-- only before first execution
-	- make aws					-- check for successful execution with web interface (aws.amazon.com)
-	- download-output-aws			-- after successful execution & termination
+### AWS Runs
+
+- Amount of data transferred to mappers: 1319441892 bytes
+- Amount of data transferred from mappers to reducers: 961483442 bytes 
+- Amount of data transferred from reducers to output: 67641452 bytes
+- Runtime: 1 minute 55 seconds
+
+
+
